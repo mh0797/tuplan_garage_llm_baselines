@@ -1,0 +1,25 @@
+gpt_driver_waypoints_planner:
+  _target_: tuplan_garage.planning.simulation.planner.llm_planner.gptdriver_waypoints_planner.gpt_driver_waypoints_planner.GPTDriverWaypointsPlanner
+  _convert_: 'all'
+
+  infer_llm_every_n_iterations: 10
+  
+  gpt_feature_builder: 
+    _target_: tuplan_garage.planning.training.preprocessing.feature_builders.gpt_driver_feature_builder.GPTFeatureBuilder
+    _convert_: 'all'
+    num_surrounding_agents: 5
+    num_surrounding_objects: 5
+    centerline_resolution: 1.0
+    min_centerline_length: 80.0
+    num_past_poses: 4
+    past_time_horizon: 2.0
+  
+  llm_interface:
+    _target_: tuplan_garage.planning.simulation.planner.llm_planner.llm_interface.llm_interface.HuggingFaceInterface
+    _convert_: 'all'
+    model_name: 'meta-llama/Llama-2-7b-chat-hf'
+    lora_adapter: null # null: pretrained model, path to lora adapter: finetuned model
+    system_promt_start_token: "<<SYS>>"
+    system_promt_end_token: "<</SYS>>"
+    instruction_start_token: "[INST]"
+    instruction_end_token: "[/INST]"

@@ -1,0 +1,6 @@
+llm_response_logging_callback:
+  _target_: tuplan_garage.planning.simulation.callback.llm_response_logging_callback.LLMResponseLoggingCallback
+  _convert_: 'all'
+
+  output_directory: ${output_dir}
+  llm_responses_log_dir: llm_responses      # Simulation log dir

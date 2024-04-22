@@ -1,0 +1,50 @@
+llm_gpt_driver_pdmpp_planner:
+  _target_: tuplan_garage.planning.simulation.planner.llm_planner.llm_planner.LLMPlanner
+  _convert_: 'all'
+
+  infer_llm_every_n_iterations: 10
+  
+  llm_feature_builder: 
+    _target_: tuplan_garage.planning.training.preprocessing.feature_builders.llm_feature_builder.LLMFeatureBuilder
+    _convert_: 'all'
+    centerline_resolution: 1.0
+    min_centerline_length: 80
+    distance_behind: 40.0
+
+  llm_behavior_planner: 
+    _target_: tuplan_garage.planning.simulation.planner.llm_planner.behavior_planner.llm_driver_behavior_planner.LLMDriverBehaviorPlanner
+    _convert_: 'all'
+    use_examples: False # set to True for in-context learning
+    llm_interface:
+      _target_: tuplan_garage.planning.simulation.planner.llm_planner.llm_interface.llm_interface.OpenAIInterface
+      _convert_: 'all'
+      model_name: 'gpt-3.5-turbo'
+      openai_api_key: ???
+      openai_org_key: null
+
+  motion_planner:
+    _target_: tuplan_garage.planning.simulation.planner.llm_planner.motion_planner.pdmpp_planner.PDMPPPlanner
+    _convert_: 'all'
+    # parameters for output trajectory
+    trajectory_sampling:
+      _target_: nuplan.planning.simulation.trajectory.trajectory_sampling.TrajectorySampling
+      _convert_: 'all'
+      num_poses: 80 # target future poses
+      interval_length: 0.1 # interval of samples [s]
+    # parameters for proposals
+    proposal_sampling:
+      _target_: nuplan.planning.simulation.trajectory.trajectory_sampling.TrajectorySampling
+      _convert_: 'all'
+      num_poses: 40 # target future poses
+      interval_length: 0.1 # interval of samples [s]
+    idm_policies:
+      _target_: tuplan_garage.planning.simulation.planner.pdm_planner.proposal.batch_idm_policy.BatchIDMPolicy
+      _convert_: 'all'
+      speed_limit_fraction: [0.2,0.4,0.6,0.8,1.0] # Target velocity as fractions of current speed-limit
+      fallback_target_velocity: 15.0 # Desired fallback velocity in free traffic [m/s] 
+      min_gap_to_lead_agent: 1.0 # Minimum relative distance to lead vehicle [m]
+      headway_time: 1.5 # Desired time headway. The minimum possible time to the vehicle in front [s]
+      accel_max: 1.5 # Maximum acceleration [m/s^2]
+      decel_max: 3.0 # Maximum deceleration (positive value) [m/s^2]
+    lateral_offsets: [-1.0, -0.1, 0, 0.1, 1.0]
+    map_radius: 50
